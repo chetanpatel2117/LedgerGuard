@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const STORAGE_KEY = 'ledgerguard.jwt';
 
@@ -29,6 +29,7 @@ function DashboardPage() {
       </header>
 
       <section className="dashboard-card">
+        <Link className="dashboard-link" to="/ledger">Open billing ledger</Link>
         <h2>Authentication status</h2>
         <p>JWT is stored successfully and the user is authenticated.</p>
         <div className="token-box">
