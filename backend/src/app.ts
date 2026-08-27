@@ -1,5 +1,6 @@
 import express from "express";
-import authRoutes from "./routes/auth.routes";
+import tenantTestRouter from "./routes/tenantTest";
+import authTestRouter from "./routes/authTest";
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.use("/", authRoutes);
+app.use("/test-tenant", tenantTestRouter);
+app.use("/auth-test", authTestRouter);
 
 export default app;
