@@ -1,4 +1,5 @@
 import express from "express";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
@@ -9,5 +10,7 @@ app.get("/", (_req, res) => {
     message: "LedgerGuard API Gateway is running",
   });
 });
+
+app.use("/", authRoutes);
 
 export default app;
