@@ -1,4 +1,6 @@
 import express from "express";
+import tenantTestRouter from "./routes/tenantTest";
+import authTestRouter from "./routes/authTest";
 
 const app = express();
 
@@ -9,5 +11,8 @@ app.get("/", (_req, res) => {
     message: "LedgerGuard API Gateway is running",
   });
 });
+
+app.use("/test-tenant", tenantTestRouter);
+app.use("/auth-test", authTestRouter);
 
 export default app;
