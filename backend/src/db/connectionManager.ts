@@ -35,3 +35,16 @@ export function getTenantConnection(tenantId: string): Promise<Connection> {
 
     return connectionPromise;
 }
+
+export async function closeAllTenantConnections(): Promise<void> {
+  const connections = Array.from(connectionCache.values());
+
+  await Promise.all(
+    connections.map(async (connectionPromise) => {
+      const connection = await connectionPromise;
+      await connection.close();
+    })
+  );
+
+  connectionCache.clear();
+}
