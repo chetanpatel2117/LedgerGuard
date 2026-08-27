@@ -50,28 +50,8 @@ function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://api.example.com/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Invalid email or password');
-      }
-
-      const data = await response.json();
-      const token = data.token || data.accessToken || data.jwt;
-
-      if (!token) {
-        throw new Error('Token not found in login response');
-      }
-
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      const token = `demo.${btoa(`${formData.email}:${Date.now()}`)}.session`;
       localStorage.setItem(STORAGE_KEY, token);
       navigate('/dashboard');
     } catch (error) {
