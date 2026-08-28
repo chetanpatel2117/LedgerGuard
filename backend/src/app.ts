@@ -1,6 +1,7 @@
 import express from "express";
-import tenantTestRouter from "./routes/tenantTest";
-import authTestRouter from "./routes/authTest";
+
+import authRouter from "./routes/auth";
+import ledgerRouter from "./routes/ledger";
 
 const app = express();
 
@@ -12,7 +13,7 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.use("/test-tenant", tenantTestRouter);
-app.use("/auth-test", authTestRouter);
+app.use("/auth", authRouter);
+app.use("/api/ledger", ledgerRouter);
 
 export default app;
