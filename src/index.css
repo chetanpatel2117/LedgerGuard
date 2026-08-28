@@ -147,6 +147,23 @@ button:disabled {
   padding: 10px 12px;
 }
 
+.auth-switch {
+  margin: 8px 0 0;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-switch a {
+  color: #7dd3fc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
 .dashboard-shell {
   min-height: 100vh;
   padding: 40px 24px;
