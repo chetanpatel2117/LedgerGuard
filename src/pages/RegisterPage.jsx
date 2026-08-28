@@ -85,7 +85,7 @@ function RegisterPage() {
           <p className="form-copy">Set up your secure workspace in a few seconds.</p>
 
           <label htmlFor="name">Full name</label>
-          <input id="name" name="name" type="text" autoComplete="name" value={formData.name} onChange={handleChange} placeholder="Alex Morgan" aria-invalid={Boolean(errors.name)} />
+          <input id="name" name="name" type="text" autoComplete="name" value={formData.name} onChange={handleChange} placeholder="enter your name" aria-invalid={Boolean(errors.name)} />
           {errors.name && <span className="field-error">{errors.name}</span>}
 
           <label htmlFor="email">Email</label>
