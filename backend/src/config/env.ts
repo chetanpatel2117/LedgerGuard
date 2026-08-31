@@ -15,3 +15,7 @@ if (!process.env.JWT_SECRET) {
 
 export const MONGO_URI: string = mongoUri;
 export const JWT_SECRET: string = jwtSecret;
+export const env = {
+  mongoUri,
+  jwtSecret,
+};
