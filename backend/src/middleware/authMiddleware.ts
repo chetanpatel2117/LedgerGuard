@@ -51,10 +51,12 @@ export function authMiddleware(
 
     const userId = decoded.userId;
     const tenantId = decoded.tenantId;
+    const role = decoded.role ?? "user";
 
     if (
       typeof userId !== "string" ||
       typeof tenantId !== "string" ||
+      typeof role !== "string" ||
       !userId ||
       !tenantId
     ) {
@@ -67,6 +69,7 @@ export function authMiddleware(
     const user: AuthenticatedUser = {
       userId,
       tenantId,
+      role,
     };
 
     req.user = user;
