@@ -1,14 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/env";
-
-interface JwtPayload {
-  userId: string;
-  tenantId: string;
-}
+import { AuthenticatedUser } from "../types/auth";
 
 export interface AuthenticatedRequest extends Request {
-  user?: JwtPayload;
+  user?: AuthenticatedUser;
 }
 
 export function authMiddleware(
@@ -55,10 +51,12 @@ export function authMiddleware(
 
     const userId = decoded.userId;
     const tenantId = decoded.tenantId;
+    const role = decoded.role ?? "user";
 
     if (
       typeof userId !== "string" ||
       typeof tenantId !== "string" ||
+      typeof role !== "string" ||
       !userId ||
       !tenantId
     ) {
@@ -71,6 +69,7 @@ export function authMiddleware(
     req.user = {
       userId,
       tenantId,
+      role,
     };
 
     next();

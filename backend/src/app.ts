@@ -1,6 +1,7 @@
 import express from "express";
 import tenantTestRouter from "./routes/tenantTest";
 import authTestRouter from "./routes/authTest";
+import analyticsRouter from "./routes/analytics";
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.get("/", (_req, res) => {
 
 app.use("/test-tenant", tenantTestRouter);
 app.use("/auth-test", authTestRouter);
+app.use("/api/analytics", analyticsRouter);
 
 export default app;
