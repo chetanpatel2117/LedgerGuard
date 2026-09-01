@@ -1,14 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/env";
-
-interface JwtPayload {
-  userId: string;
-  tenantId: string;
-}
+import { AuthenticatedUser } from "../types/auth";
 
 export interface AuthenticatedRequest extends Request {
-  user?: JwtPayload;
+  user?: AuthenticatedUser;
 }
 
 export function authMiddleware(
@@ -43,9 +39,9 @@ export function authMiddleware(
     }
 
     const decoded = jwt.verify(token, JWT_SECRET, {
-    algorithms: ["HS256"],
+      algorithms: ["HS256"],
     });
-      
+
     if (typeof decoded === "string") {
       return res.status(401).json({
         success: false,
@@ -68,13 +64,15 @@ export function authMiddleware(
       });
     }
 
-    req.user = {
+    const user: AuthenticatedUser = {
       userId,
       tenantId,
     };
 
+    req.user = user;
+
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       success: false,
       message: "Invalid or expired JWT",

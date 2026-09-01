@@ -1,9 +1,12 @@
 import { Connection } from "mongoose";
-import { ledgerEntrySchema } from "../models/LedgerEntry";
+import { randomUUID } from "crypto";
+
+import ledgerEntrySchema from "../models/LedgerEntry";
 
 interface CreateLedgerEntryInput {
   tenantId: string;
   userId: string;
+  eventId: string;
   type: "CREDIT" | "DEBIT";
   amount: number;
   description: string;
@@ -18,18 +21,62 @@ export const createLedgerEntry = async (
     connection.models.LedgerEntry ||
     connection.model("LedgerEntry", ledgerEntrySchema);
 
-  const entry = await LedgerEntry.create({
-    tenantId: input.tenantId,
-    type: input.type,
-    amount: input.amount,
-    description: input.description,
-    reference: input.reference,
-    createdBy: input.userId,
+  // First idempotency check
+  const existingEntry = await LedgerEntry.findOne({
+    eventId: input.eventId,
   });
 
-  return entry;
-};
+  if (existingEntry) {
+    return existingEntry;
+  }
 
+  const session = await connection.startSession();
+
+  try {
+    let entry;
+
+    try {
+      await session.withTransaction(async () => {
+        const transactionId = randomUUID();
+
+        const entries = await LedgerEntry.create(
+          [
+            {
+              tenantId: input.tenantId,
+              eventId: input.eventId,
+              transactionId,
+              type: input.type,
+              amount: input.amount,
+              description: input.description,
+              reference: input.reference,
+              createdBy: input.userId,
+            },
+          ],
+          { session }
+        );
+
+        entry = entries[0];
+      });
+    } catch (error: any) {
+      // Another request may have created the same event
+      if (error?.code === 11000) {
+        const existingEntry = await LedgerEntry.findOne({
+          eventId: input.eventId,
+        });
+
+        if (existingEntry) {
+          return existingEntry;
+        }
+      }
+
+      throw error;
+    }
+
+    return entry;
+  } finally {
+    await session.endSession();
+  }
+};
 
 export const getLedgerEntries = async (
   connection: Connection

@@ -1,11 +1,21 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export const ledgerEntrySchema = new Schema(
+const ledgerEntrySchema = new Schema(
   {
     tenantId: {
       type: String,
       required: true,
-      index: true,
+    },
+
+    eventId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    transactionId: {
+      type: String,
+      required: true,
     },
 
     type: {
@@ -23,7 +33,6 @@ export const ledgerEntrySchema = new Schema(
     description: {
       type: String,
       required: true,
-      trim: true,
     },
 
     reference: {
@@ -33,7 +42,7 @@ export const ledgerEntrySchema = new Schema(
     },
 
     createdBy: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
   },
@@ -41,3 +50,5 @@ export const ledgerEntrySchema = new Schema(
     timestamps: true,
   }
 );
+
+export default ledgerEntrySchema;

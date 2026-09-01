@@ -11,6 +11,7 @@ import {
   createLedgerEntry,
   getLedgerEntries,
 } from "../services/ledgerService";
+import { randomUUID } from "crypto";
 const router = Router();
 
 router.post(
@@ -18,20 +19,30 @@ router.post(
   authMiddleware,
   async (req: AuthenticatedRequest, res) => {
     try {
-      const { type, amount, description, reference } = req.body;
-
+        const {
+          eventId,
+          type,
+          amount,
+          description,
+          reference,
+        } = req.body;
+      
       if (
-        (type !== "CREDIT" && type !== "DEBIT") ||
-        typeof amount !== "number" ||
-        amount <= 0 ||
-        typeof description !== "string" ||
-        typeof reference !== "string"
-      ) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid ledger entry data",
-        });
-      }
+          typeof eventId !== "string" ||
+          !eventId.trim() ||
+          (type !== "CREDIT" && type !== "DEBIT") ||
+          typeof amount !== "number" ||
+          amount <= 0 ||
+          typeof description !== "string" ||
+          !description.trim() ||
+          typeof reference !== "string" ||
+          !reference.trim()
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid ledger entry data",
+          });
+        }
 
       const tenantId = req.user!.tenantId;
       const userId = req.user!.userId;
@@ -39,14 +50,14 @@ router.post(
       const connection = await getTenantConnection(tenantId);
 
       const entry = await createLedgerEntry(connection, {
-        tenantId,
-        userId,
-        type,
-        amount,
-        description,
-        reference,
-      });
-
+  tenantId,
+  userId,
+  eventId,
+  type,
+  amount,
+  description,
+  reference,
+});
       return res.status(201).json({
         success: true,
         entry,

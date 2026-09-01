@@ -3,14 +3,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 import { getUserModel } from "../models/User";
+import { JWT_SECRET } from "../config/env";
 
 const router = Router();
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is not defined");
-}
 
 router.post("/login", async (req, res) => {
   try {
