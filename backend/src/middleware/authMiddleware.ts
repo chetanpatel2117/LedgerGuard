@@ -39,9 +39,9 @@ export function authMiddleware(
     }
 
     const decoded = jwt.verify(token, JWT_SECRET, {
-    algorithms: ["HS256"],
+      algorithms: ["HS256"],
     });
-      
+
     if (typeof decoded === "string") {
       return res.status(401).json({
         success: false,
@@ -66,14 +66,16 @@ export function authMiddleware(
       });
     }
 
-    req.user = {
+    const user: AuthenticatedUser = {
       userId,
       tenantId,
       role,
     };
 
+    req.user = user;
+
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       success: false,
       message: "Invalid or expired JWT",

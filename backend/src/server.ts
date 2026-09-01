@@ -1,5 +1,9 @@
+import "dotenv/config";
+
 import app from "./app";
 import { closeAllTenantConnections } from "./db/connectionManager";
+import { closeAuthConnection } from "./config/authConnection";
+
 
 const PORT = 3000;
 
@@ -13,6 +17,7 @@ const shutdown = async (signal: string) => {
   server.close(async () => {
     try {
       await closeAllTenantConnections();
+      await closeAuthConnection();
 
       console.log("All tenant MongoDB connections closed.");
       console.log("LedgerGuard API Gateway stopped.");
