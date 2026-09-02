@@ -5,9 +5,14 @@ const STORAGE_KEY = 'ledgerguard.jwt';
 
 const validateEmail = (value) => /\S+@\S+\.\S+/.test(value);
 
-function LoginPage() {
+function RegisterPage() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,16 +28,19 @@ function LoginPage() {
   const validate = () => {
     const nextErrors = {};
 
+    if (!formData.name.trim()) nextErrors.name = 'Full name is required.';
     if (!formData.email.trim()) {
       nextErrors.email = 'Email is required.';
     } else if (!validateEmail(formData.email)) {
       nextErrors.email = 'Please enter a valid email address.';
     }
-
-    if (!formData.password.trim()) {
+    if (!formData.password) {
       nextErrors.password = 'Password is required.';
     } else if (formData.password.length < 6) {
       nextErrors.password = 'Password must be at least 6 characters long.';
+    }
+    if (formData.password !== formData.confirmPassword) {
+      nextErrors.confirmPassword = 'Passwords do not match.';
     }
 
     return nextErrors;
@@ -40,8 +48,8 @@ function LoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     const nextErrors = validate();
+
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       return;
@@ -55,9 +63,7 @@ function LoginPage() {
       localStorage.setItem(STORAGE_KEY, token);
       navigate('/dashboard');
     } catch (error) {
-      setErrors({
-        submit: error.message || 'Login failed. Please try again.'
-      });
+      setErrors({ submit: error.message || 'Registration failed. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -75,43 +81,33 @@ function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form" noValidate>
-          <h2>Welcome back</h2>
-          <p className="form-copy">Sign in to access your financial operations.</p>
+          <h2>Create your account</h2>
+          <p className="form-copy">Set up your secure workspace in a few seconds.</p>
+
+          <label htmlFor="name">Full name</label>
+          <input id="name" name="name" type="text" autoComplete="name" value={formData.name} onChange={handleChange} placeholder="enter your name" aria-invalid={Boolean(errors.name)} />
+          {errors.name && <span className="field-error">{errors.name}</span>}
 
           <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="you@example.com"
-            aria-invalid={Boolean(errors.email)}
-          />
+          <input id="email" name="email" type="email" autoComplete="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" aria-invalid={Boolean(errors.email)} />
           {errors.email && <span className="field-error">{errors.email}</span>}
 
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-            aria-invalid={Boolean(errors.password)}
-          />
+          <input id="password" name="password" type="password" autoComplete="new-password" value={formData.password} onChange={handleChange} placeholder="At least 6 characters" aria-invalid={Boolean(errors.password)} />
           {errors.password && <span className="field-error">{errors.password}</span>}
+
+          <label htmlFor="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} placeholder="Re-enter your password" aria-invalid={Boolean(errors.confirmPassword)} />
+          {errors.confirmPassword && <span className="field-error">{errors.confirmPassword}</span>}
 
           {errors.submit && <div className="submit-error">{errors.submit}</div>}
 
           <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in...' : 'Sign In'}
+            {isSubmitting ? 'Creating account...' : 'Create Account'}
           </button>
 
           <p className="auth-switch">
-            New to LedgerGuard? <Link to="/register">Create an account</Link>
+            Already have an account? <Link to="/login">Sign in</Link>
           </p>
         </form>
       </div>
@@ -119,4 +115,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default RegisterPage;

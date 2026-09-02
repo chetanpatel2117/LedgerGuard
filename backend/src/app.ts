@@ -1,5 +1,7 @@
 import express from "express";
-import authRoutes from "./routes/auth.routes";
+
+import authRouter from "./routes/auth";
+import ledgerRouter from "./routes/ledger";
 
 const app = express();
 
@@ -11,6 +13,7 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.use("/", authRoutes);
+app.use("/auth", authRouter);
+app.use("/api/ledger", ledgerRouter);
 
 export default app;
