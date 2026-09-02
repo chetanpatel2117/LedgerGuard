@@ -13,9 +13,17 @@ if (!process.env.JWT_SECRET) {
   console.warn("JWT_SECRET not set; using local fallback secret");
 }
 
-export const MONGO_URI: string = mongoUri;
-export const JWT_SECRET: string = jwtSecret;
+const redisUrl = process.env.REDIS_URL ?? "redis://localhost:6379";
+
+const redisLockTtlMs = Number(process.env.REDIS_LOCK_TTL_MS ?? 10000);
+
+if (!Number.isInteger(redisLockTtlMs) || redisLockTtlMs <= 0) {
+  throw new Error("REDIS_LOCK_TTL_MS must be a positive integer");
+}
+
 export const env = {
   mongoUri,
   jwtSecret,
+  redisUrl,
+  redisLockTtlMs,
 };
