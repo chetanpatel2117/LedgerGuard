@@ -4,6 +4,9 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import LedgerPage from './pages/LedgerPage';
 import TransactionDetailsPage from './pages/TransactionDetailsPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import OrganizationPage from './pages/OrganizationPage';
+import SettingsPage from './pages/SettingsPage';
 
 const STORAGE_KEY = 'ledgerguard.jwt';
 
@@ -33,6 +36,9 @@ function App() {
         />
         <Route path="/ledger" element={<ProtectedRoute><LedgerPage /></ProtectedRoute>} />
         <Route path="/ledger/:transactionId" element={<ProtectedRoute><TransactionDetailsPage /></ProtectedRoute>} />
+        <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+        <Route path="/organization" element={<ProtectedRoute><OrganizationPage /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to={isAuthenticated() ? '/dashboard' : '/login'} replace />} />
       </Routes>
     </BrowserRouter>

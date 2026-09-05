@@ -30,51 +30,24 @@ export const createLedgerEntry = async (
     return existingEntry;
   }
 
-  const session = await connection.startSession();
-
   try {
-    let entry;
-
-    try {
-      await session.withTransaction(async () => {
-        const transactionId = randomUUID();
-
-        const entries = await LedgerEntry.create(
-          [
-            {
-              tenantId: input.tenantId,
-              eventId: input.eventId,
-              transactionId,
-              type: input.type,
-              amount: input.amount,
-              description: input.description,
-              reference: input.reference,
-              createdBy: input.userId,
-            },
-          ],
-          { session }
-        );
-
-        entry = entries[0];
-      });
-    } catch (error: any) {
-      // Another request may have created the same event
-      if (error?.code === 11000) {
-        const existingEntry = await LedgerEntry.findOne({
-          eventId: input.eventId,
-        });
-
-        if (existingEntry) {
-          return existingEntry;
-        }
-      }
-
-      throw error;
+    return await LedgerEntry.create({
+      tenantId: input.tenantId,
+      eventId: input.eventId,
+      transactionId: randomUUID(),
+      type: input.type,
+      amount: input.amount,
+      description: input.description,
+      reference: input.reference,
+      createdBy: input.userId,
+    });
+  } catch (error: any) {
+    // The unique eventId index makes concurrent retries idempotent.
+    if (error?.code === 11000) {
+      const existingEntry = await LedgerEntry.findOne({ eventId: input.eventId });
+      if (existingEntry) return existingEntry;
     }
-
-    return entry;
-  } finally {
-    await session.endSession();
+    throw error;
   }
 };
 

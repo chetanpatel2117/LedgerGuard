@@ -3,6 +3,9 @@ import { env } from "./env";
 
 export const redisClient = createClient({
   url: env.redisUrl,
+  socket: {
+    reconnectStrategy: false,
+  },
 });
 
 redisClient.on("error", (error) => {

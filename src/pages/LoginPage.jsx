@@ -50,9 +50,22 @@ function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 350));
-      const token = `demo.${btoa(`${formData.email}:${Date.now()}`)}.session`;
-      localStorage.setItem(STORAGE_KEY, token);
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || typeof payload.token !== 'string') {
+        throw new Error(payload.message || 'Login failed. Please try again.');
+      }
+
+      localStorage.setItem(STORAGE_KEY, payload.token);
       navigate('/dashboard');
     } catch (error) {
       setErrors({

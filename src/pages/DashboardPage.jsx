@@ -129,6 +129,33 @@ function DashboardPage() {
     navigate('/login');
   };
 
+  const summaryCards = [
+    {
+      label: 'Total usage',
+      value: analytics.summary.totalUsage,
+      note: 'This month',
+      tone: 'primary',
+    },
+    {
+      label: 'Monthly spend',
+      value: analytics.summary.monthlySpend,
+      note: '+8.4% vs last month',
+      tone: 'success',
+    },
+    {
+      label: 'Active resources',
+      value: analytics.summary.activeResources,
+      note: 'Operational',
+      tone: 'neutral',
+    },
+    {
+      label: 'Utilization',
+      value: analytics.summary.utilization,
+      note: 'Target reached',
+      tone: 'accent',
+    },
+  ];
+
   return (
     <div className="dashboard-shell">
       <header className="dashboard-header">
@@ -145,22 +172,15 @@ function DashboardPage() {
       </header>
 
       <section className="dashboard-summary-grid" aria-label="Dashboard summary metrics">
-        <article className="summary-card">
-          <span>Total usage</span>
-          <strong>{analytics.summary.totalUsage}</strong>
-        </article>
-        <article className="summary-card">
-          <span>Monthly spend</span>
-          <strong>{analytics.summary.monthlySpend}</strong>
-        </article>
-        <article className="summary-card">
-          <span>Active resources</span>
-          <strong>{analytics.summary.activeResources}</strong>
-        </article>
-        <article className="summary-card">
-          <span>Utilization</span>
-          <strong>{analytics.summary.utilization}</strong>
-        </article>
+        {summaryCards.map((card) => (
+          <article key={card.label} className={`summary-card ${card.tone}`}>
+            <div className="summary-header">
+              <span>{card.label}</span>
+              <span className="summary-badge">{card.note}</span>
+            </div>
+            <strong>{card.value}</strong>
+          </article>
+        ))}
       </section>
 
       {error && <div className="dashboard-error">{error}</div>}
@@ -168,65 +188,80 @@ function DashboardPage() {
       <section className="dashboard-grid">
         <article className="dashboard-panel chart-panel">
           <div className="panel-header">
-            <h2>Usage over time</h2>
+            <div>
+              <p className="panel-kicker">Trend</p>
+              <h2>Usage over time</h2>
+            </div>
           </div>
           {loading ? (
             <div className="chart-placeholder">Loading chart…</div>
           ) : (
-            <Line
-              data={lineChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { display: false } },
-                scales: {
-                  y: { beginAtZero: false, grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { color: '#cbd5e1' } },
-                  x: { grid: { display: false }, ticks: { color: '#cbd5e1' } },
-                },
-              }}
-            />
+            <div className="chart-wrap">
+              <Line
+                data={lineChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  interaction: { mode: 'index', intersect: false },
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    y: { beginAtZero: false, grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { color: '#cbd5e1' } },
+                    x: { grid: { display: false }, ticks: { color: '#cbd5e1' } },
+                  },
+                }}
+              />
+            </div>
           )}
         </article>
 
         <article className="dashboard-panel chart-panel">
           <div className="panel-header">
-            <h2>Resource consumption</h2>
+            <div>
+              <p className="panel-kicker">Capacity</p>
+              <h2>Resource consumption</h2>
+            </div>
           </div>
           {loading ? (
             <div className="chart-placeholder">Loading chart…</div>
           ) : (
-            <Bar
-              data={barChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                  y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { color: '#cbd5e1' } },
-                  x: { grid: { display: false }, ticks: { color: '#cbd5e1' } },
-                },
-              }}
-            />
+            <div className="chart-wrap">
+              <Bar
+                data={barChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(148, 163, 184, 0.15)' }, ticks: { color: '#cbd5e1' } },
+                    x: { grid: { display: false }, ticks: { color: '#cbd5e1' } },
+                  },
+                }}
+              />
+            </div>
           )}
         </article>
 
         <article className="dashboard-panel chart-panel doughnut-panel">
           <div className="panel-header">
-            <h2>Cost distribution</h2>
+            <div>
+              <p className="panel-kicker">Spend mix</p>
+              <h2>Cost distribution</h2>
+            </div>
           </div>
           {loading ? (
             <div className="chart-placeholder">Loading chart…</div>
           ) : (
-            <Doughnut
-              data={doughnutChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 10 } } },
-                cutout: '60%',
-              }}
-            />
+            <div className="chart-wrap chart-wrap-doughnut">
+              <Doughnut
+                data={doughnutChartData}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1', usePointStyle: true, boxWidth: 10 } } },
+                  cutout: '60%',
+                }}
+              />
+            </div>
           )}
         </article>
       </section>

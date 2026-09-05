@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchLedger } from '../api/ledger';
+import { createLedgerEntry, fetchLedger } from '../api/ledger';
 
 export const formatAmount = (amount, currency) => new Intl.NumberFormat('en-US', {
   style: 'currency', currency
@@ -16,17 +16,48 @@ function LedgerPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('');
   const [state, setState] = useState({ loading: true, error: '' });
+  const [form, setForm] = useState({ type: 'CREDIT', amount: '', description: '', reference: '' });
+  const [formState, setFormState] = useState({ submitting: false, error: '' });
+
+  const loadLedger = (signal) => fetchLedger(signal).then((data) => {
+    setTransactions(data);
+    setState({ loading: false, error: '' });
+  });
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchLedger(controller.signal).then((data) => {
-      setTransactions(data);
-      setState({ loading: false, error: '' });
-    }).catch((error) => {
-      if (error.name !== 'AbortError') setState({ loading: false, error: error.message });
+    loadLedger(controller.signal).catch((error) => {
+      if (error.name === 'AbortError') return;
+      if (error.status === 401) {
+        localStorage.removeItem('ledgerguard.jwt');
+        navigate('/login', { replace: true });
+        return;
+      }
+      setState({ loading: false, error: error.message });
     });
     return () => controller.abort();
   }, []);
+
+  const handleCreate = async (event) => {
+    event.preventDefault();
+    setFormState({ submitting: true, error: '' });
+    try {
+      await createLedgerEntry({
+        eventId: crypto.randomUUID(), type: form.type, amount: Number(form.amount),
+        description: form.description.trim(), reference: form.reference.trim(),
+      });
+      setForm({ type: 'CREDIT', amount: '', description: '', reference: '' });
+      await loadLedger();
+      setFormState({ submitting: false, error: '' });
+    } catch (error) {
+      if (error.status === 401) {
+        localStorage.removeItem('ledgerguard.jwt');
+        navigate('/login', { replace: true });
+        return;
+      }
+      setFormState({ submitting: false, error: error.message || 'Unable to add transaction.' });
+    }
+  };
 
   const filteredTransactions = useMemo(() => transactions.filter((transaction) => {
     const matchesStatus = statusFilter === 'all' || transaction.status === statusFilter;
@@ -49,11 +80,17 @@ function LedgerPage() {
       <main className="ledger-content">
         <div className="ledger-intro"><div><p className="eyebrow">Transaction register</p><h2>All transactions</h2></div><span className="record-count">{filteredTransactions.length} records</span></div>
         <section className="ledger-panel" aria-label="Ledger transactions">
-          <div className="ledger-toolbar">
-            <label htmlFor="status-filter">Status<select id="status-filter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All statuses</option>{statuses.map((status) => <option key={status} value={status}>{status[0].toUpperCase() + status.slice(1)}</option>)}</select></label>
-            <label htmlFor="date-filter">Date<input id="date-filter" type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} /></label>
-            {(statusFilter !== 'all' || dateFilter) && <button type="button" className="clear-filter" onClick={() => { setStatusFilter('all'); setDateFilter(''); }}>Clear filters</button>}
-          </div>
+          <form className="transaction-form" onSubmit={handleCreate}>
+            <div className="transaction-form-heading"><div><p className="panel-kicker">New entry</p><h2>Add transaction</h2></div>{formState.error && <span className="form-error">{formState.error}</span>}</div>
+            <div className="transaction-form-fields">
+              <label htmlFor="transaction-type">Type<select id="transaction-type" value={form.type} onChange={(event) => setForm({ ...form, type: event.target.value })}><option value="CREDIT">Credit</option><option value="DEBIT">Debit</option></select></label>
+              <label htmlFor="transaction-amount">Amount<input id="transaction-amount" type="number" min="0.01" step="0.01" required value={form.amount} onChange={(event) => setForm({ ...form, amount: event.target.value })} placeholder="0.00" /></label>
+              <label htmlFor="transaction-description">Description<input id="transaction-description" required value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Monthly subscription" /></label>
+              <label htmlFor="transaction-reference">Reference<input id="transaction-reference" required value={form.reference} onChange={(event) => setForm({ ...form, reference: event.target.value })} placeholder="INV-1001" /></label>
+              <button type="submit" disabled={formState.submitting}>{formState.submitting ? 'Adding...' : 'Add transaction'}</button>
+            </div>
+          </form>
+          <div className="ledger-toolbar"><label htmlFor="status-filter">Status<select id="status-filter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">All statuses</option>{statuses.map((status) => <option key={status} value={status}>{status[0].toUpperCase() + status.slice(1)}</option>)}</select></label><label htmlFor="date-filter">Date<input id="date-filter" type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} /></label>{(statusFilter !== 'all' || dateFilter) && <button type="button" className="clear-filter" onClick={() => { setStatusFilter('all'); setDateFilter(''); }}>Clear filters</button>}</div>
           {state.loading && <div className="ledger-state">Loading ledger data...</div>}
           {!state.loading && state.error && <div className="ledger-state error-state"><strong>Unable to load the ledger.</strong><span>{state.error}</span></div>}
           {!state.loading && !state.error && filteredTransactions.length === 0 && <div className="ledger-state">No transactions match these filters.</div>}

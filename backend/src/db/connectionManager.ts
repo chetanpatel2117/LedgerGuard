@@ -1,5 +1,6 @@
 import mongoose, { Connection } from "mongoose";
 import { validateTenantId } from "../utils/tenantValidator";
+import { env } from "../config/env";
 
 const connectionCache = new Map<string, Promise<Connection>>();
 
@@ -18,7 +19,7 @@ export function getTenantConnection(tenantId: string): Promise<Connection> {
     const dbName = `ledgerguard_${tenantId}`;
 
     const connectionPromise = mongoose
-        .createConnection(process.env.MONGO_URI!, {
+        .createConnection(env.mongoUri, {
             dbName
         })
         .asPromise()

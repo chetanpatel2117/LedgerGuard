@@ -1,16 +1,6 @@
 import mongoose, { Connection } from "mongoose";
 
-function getRequiredEnv(name: string): string {
-  const value = process.env[name];
-
-  if (!value) {
-    throw new Error(`${name} is not defined`);
-  }
-
-  return value;
-}
-
-const MONGO_URI = getRequiredEnv("MONGO_URI");
+import { MONGO_URI } from "./env";
 
 let authConnection: Connection | null = null;
 

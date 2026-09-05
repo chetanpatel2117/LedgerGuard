@@ -1,5 +1,6 @@
 import express from "express";
 
+import analyticsRouter from "./routes/analytics";
 import authRouter from "./routes/auth";
 import ledgerRouter from "./routes/ledger";
 
@@ -14,6 +15,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/api/analytics", analyticsRouter);
 app.use("/api/ledger", ledgerRouter);
 
 export default app;

@@ -2,6 +2,7 @@ import { Schema } from "mongoose";
 import { getAuthConnection } from "../config/authConnection";
 
 export interface IUser {
+  name?: string;
   email: string;
   password: string;
   tenantId: string;
@@ -9,6 +10,11 @@ export interface IUser {
 
 const userSchema = new Schema<IUser>(
   {
+    name: {
+      type: String,
+      trim: true,
+    },
+
     email: {
       type: String,
       required: true,

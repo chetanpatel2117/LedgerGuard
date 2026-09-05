@@ -58,9 +58,23 @@ function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 350));
-      const token = `demo.${btoa(`${formData.email}:${Date.now()}`)}.session`;
-      localStorage.setItem(STORAGE_KEY, token);
+      const response = await fetch('/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || typeof payload.token !== 'string') {
+        throw new Error(payload.message || 'Registration failed. Please try again.');
+      }
+
+      localStorage.setItem(STORAGE_KEY, payload.token);
       navigate('/dashboard');
     } catch (error) {
       setErrors({ submit: error.message || 'Registration failed. Please try again.' });

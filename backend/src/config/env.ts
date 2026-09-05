@@ -27,3 +27,6 @@ export const env = {
   redisUrl,
   redisLockTtlMs,
 };
+
+export const MONGO_URI = mongoUri;
+export const JWT_SECRET = jwtSecret;

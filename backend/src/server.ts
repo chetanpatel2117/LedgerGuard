@@ -7,11 +7,15 @@ const PORT = 3000;
 
 const startServer = async () => {
   try {
-    await connectRedis();
+    try {
+      await connectRedis();
+    } catch (error) {
+      console.warn("Redis unavailable; starting without Redis-backed locks.", error);
+    }
 
     app.listen(PORT, () => {
       console.log(`LedgerGuard API Gateway running on port ${PORT}`);
-      console.log("Redis connected successfully");
+      console.log("Redis connection attempted");
     });
   } catch (error) {
     console.error("Failed to start server:", error);
