@@ -53,6 +53,7 @@ function DashboardPage() {
   const [analytics, setAnalytics] = useState(defaultAnalytics);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -87,7 +88,9 @@ function DashboardPage() {
     fetchAnalytics();
 
     return () => controller.abort();
-  }, []);
+  }, [refreshKey]);
+
+  const hasData = (chart) => chart.labels.length > 0 && chart.values.length > 0;
 
   const lineChartData = useMemo(() => ({
     labels: analytics.usageOverTime.labels,
@@ -178,14 +181,21 @@ function DashboardPage() {
               <span>{card.label}</span>
               <span className="summary-badge">{card.note}</span>
             </div>
-            <strong>{card.value}</strong>
+            {loading ? <span className="summary-value-skeleton" aria-label={`Loading ${card.label}`} /> : <strong>{card.value}</strong>}
           </article>
         ))}
       </section>
 
-      {error && <div className="dashboard-error">{error}</div>}
+      {error && (
+        <div className="dashboard-error" role="alert">
+          <span>{error}</span>
+          <button type="button" className="retry-button" onClick={() => setRefreshKey((key) => key + 1)}>
+            Try again
+          </button>
+        </div>
+      )}
 
-      <section className="dashboard-grid">
+      <section className="dashboard-grid" aria-busy={loading}>
         <article className="dashboard-panel chart-panel">
           <div className="panel-header">
             <div>
@@ -194,7 +204,9 @@ function DashboardPage() {
             </div>
           </div>
           {loading ? (
-            <div className="chart-placeholder">Loading chart…</div>
+            <div className="chart-placeholder skeleton-chart" aria-label="Loading usage chart" />
+          ) : !hasData(analytics.usageOverTime) ? (
+            <div className="chart-placeholder empty-chart"><strong>No usage data yet</strong><span>Usage trends will appear after activity is recorded.</span></div>
           ) : (
             <div className="chart-wrap">
               <Line
@@ -222,7 +234,9 @@ function DashboardPage() {
             </div>
           </div>
           {loading ? (
-            <div className="chart-placeholder">Loading chart…</div>
+            <div className="chart-placeholder skeleton-chart" aria-label="Loading resource chart" />
+          ) : !hasData(analytics.resourceConsumption) ? (
+            <div className="chart-placeholder empty-chart"><strong>No resource data yet</strong><span>Resource consumption will appear after activity is recorded.</span></div>
           ) : (
             <div className="chart-wrap">
               <Bar
@@ -249,7 +263,9 @@ function DashboardPage() {
             </div>
           </div>
           {loading ? (
-            <div className="chart-placeholder">Loading chart…</div>
+            <div className="chart-placeholder skeleton-chart" aria-label="Loading cost chart" />
+          ) : !hasData(analytics.costDistribution) ? (
+            <div className="chart-placeholder empty-chart"><strong>No cost data yet</strong><span>Cost distribution will appear after activity is recorded.</span></div>
           ) : (
             <div className="chart-wrap chart-wrap-doughnut">
               <Doughnut

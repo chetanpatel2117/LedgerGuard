@@ -262,6 +262,16 @@ button:disabled {
   letter-spacing: -0.04em;
 }
 
+.summary-value-skeleton {
+  display: block;
+  width: 62%;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.08), rgba(148, 163, 184, 0.18), rgba(148, 163, 184, 0.08));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
 .dashboard-grid {
   max-width: 1180px;
   margin: 0 auto;
@@ -276,6 +286,7 @@ button:disabled {
   border-radius: 20px;
   padding: 20px 20px 18px;
   min-height: 300px;
+  min-width: 0;
   box-shadow: 0 24px 40px rgba(2, 6, 23, 0.2);
 }
 
@@ -309,7 +320,10 @@ button:disabled {
 .chart-wrap {
   position: relative;
   height: 240px;
+  min-width: 0;
 }
+
+.chart-wrap canvas { max-width: 100%; }
 
 .chart-wrap-doughnut {
   height: 260px;
@@ -322,6 +336,28 @@ button:disabled {
   color: #94a3b8;
 }
 
+.empty-chart {
+  align-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.empty-chart strong, .empty-state strong { color: #e2e8f0; }
+.empty-chart span, .empty-state span { max-width: 32ch; font-size: 0.86rem; }
+
+.skeleton-chart, .skeleton-block {
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.08), rgba(148, 163, 184, 0.18), rgba(148, 163, 184, 0.08));
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-chart { border-radius: 12px; }
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
 .dashboard-error {
   max-width: 1180px;
   margin: 0 auto 20px;
@@ -330,6 +366,20 @@ button:disabled {
   border: 1px solid rgba(248, 113, 113, 0.35);
   background: rgba(127, 29, 29, 0.22);
   color: #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.retry-button {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+  font-size: 0.82rem;
 }
 
 .logout-button {
@@ -372,6 +422,8 @@ button:disabled {
   .doughnut-panel {
     grid-column: auto;
   }
+
+  .skeleton-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -388,6 +440,11 @@ button:disabled {
     width: 100%;
     justify-content: space-between;
   }
+
+  .dashboard-error { align-items: flex-start; flex-direction: column; }
+  .retry-button { align-self: flex-start; }
+  .skeleton-summary-grid { grid-template-columns: 1fr; }
+  .chart-wrap { height: 220px; }
 }
 
 .ledger-shell {
@@ -712,6 +769,10 @@ tbody tr:hover {
 .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 28px; }
 .page-heading h1 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.04em; }
 .analytics-grid, .settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.analytics-loading { display: grid; gap: 20px; }
+.skeleton-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.skeleton-block { min-height: 118px; border-radius: 18px; }
+.skeleton-chart-panel { min-height: 340px; }
 .settings-panel { min-width: 0; padding: 24px; background: rgba(15, 23, 42, 0.82); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 18px; box-shadow: 0 24px 40px rgba(2, 6, 23, 0.2); }
 .settings-panel h2 { margin: 0 0 18px; font-size: 1.25rem; }
 .settings-panel label { display: block; }
